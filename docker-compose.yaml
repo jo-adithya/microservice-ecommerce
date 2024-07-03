@@ -1,0 +1,57 @@
+services:
+  frontend:
+    image: joadithya/ecomm-ui
+    build:
+      context: frontend
+      target: development
+    ports:
+      - "3000:3000"
+    environment:
+      BASE_API_URL: "http://nginx/"
+      NEXT_PUBLIC_BASE_API_URL: "http://localhost/"
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app
+        - action: rebuild
+          path: ./frontend/package.json
+
+  auth:
+    image: joadithya/ecomm-auth
+    build:
+      context: backend
+      dockerfile: ./apps/auth/Dockerfile
+      target: development
+      args:
+        TARGET: development
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./backend/apps/auth/.env
+    develop:
+      watch:
+        - action: sync
+          path: ./backend/apps/auth/src
+          target: /usr/src/app/apps/auth/src
+        - action: sync
+          path: ./backend/libs/server
+          target: /usr/src/app/libs/server
+        - action: rebuild
+          path: ./backend/package.json
+
+  mongo:
+    image: mongo
+    container_name: auth-mongo
+    ports:
+      - "27017:27017"
+
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - frontend
+      - auth

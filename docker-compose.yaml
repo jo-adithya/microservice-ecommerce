@@ -7,8 +7,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      BASE_API_URL: "http://nginx/"
-      NEXT_PUBLIC_BASE_API_URL: "http://localhost/"
+      BASE_API_URL: "http://nginx/api"
+      NEXT_PUBLIC_BASE_API_URL: "http://localhost/api"
     develop:
       watch:
         - action: sync
@@ -29,6 +29,8 @@ services:
       - "4000:4000"
     env_file:
       - ./backend/apps/auth/.env
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/auth
     develop:
       watch:
         - action: sync
